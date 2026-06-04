@@ -5,7 +5,7 @@ from utils.pdf_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.section_analyzer import analyze_sections
 from utils.resume_suggestions import generate_suggestions
-
+from utils.ats_scorer import calculate_ats_score
 
 # -----------------------
 # PAGE CONFIG
@@ -145,8 +145,19 @@ if analyze:
         score = 0
 
     # ATS Score
-    ats_score = min(score + 15, 100)
+    resume_strength = min(len(resume_skills) * 5, 100)
+    ats_score = calculate_ats_score(
+    match_score=score,
+    section_scores=sections,
+    resume_strength=resume_strength,
+    missing_skills=missing
+    )
+    section_average = (
+    sum(sections.values())
+    / len(sections)
+    )
 
+    penalty = min(len(missing) * 2, 20)
     # Resume Strength
     resume_strength = min(len(resume_skills) * 5, 100)
     
@@ -189,6 +200,30 @@ if analyze:
         """, unsafe_allow_html=True)
 
     st.write("")
+    
+    
+    st.subheader("📈 ATS Score Breakdown")
+
+    st.write(f"✅ Skill Match Contribution: {int(score * 0.5)}")
+
+    st.write(
+        f"✅ Section Quality Contribution: "
+        f"{int(section_average * 0.3)}"
+    )
+
+    st.write(
+        f"✅ Resume Strength Contribution: "
+        f"{int(resume_strength * 0.2)}"
+    )
+
+    st.write(
+        f"❌ Missing Skills Penalty: "
+        f"-{penalty}"
+    )
+
+    st.success(
+        f"Final ATS Score: {ats_score}/100"
+    )
 
     # -----------------------
     # EXTRACTED TEXT
