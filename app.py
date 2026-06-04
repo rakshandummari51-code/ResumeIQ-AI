@@ -4,6 +4,8 @@ import streamlit as st
 from utils.pdf_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.section_analyzer import analyze_sections
+st.write("RUNNING LATEST APP.PY")
+
 
 # -----------------------
 # PAGE CONFIG
@@ -109,16 +111,16 @@ if analyze:
 
     # Extract Resume Text
     resume_text = extract_text_from_pdf(uploaded_file)
+
     sections = analyze_sections(resume_text)
-    
-    st.subheader("📋 Resume Section Analysis")
 
-    for section, status in sections.items():
+    st.subheader("📊 Resume Section Quality")
 
-        if status:
-            st.success(f"{section} ✅ Present")
-        else:
-            st.error(f"{section} ❌ Missing")
+    for section, section_score in sections.items():
+
+        st.write(f"{section} — {section_score}/100")
+
+        st.progress(int(section_score))
 
     # Extract Skills
     resume_skills = extract_skills(resume_text)
