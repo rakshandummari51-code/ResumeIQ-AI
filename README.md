@@ -6,6 +6,23 @@ ResumeIQ AI is an AI-powered Resume Analyzer that compares a candidate's resume 
 
 ## 📌 Features
 
+## 📸 Application Screenshots
+
+### 🏠 Home Page
+![Home Page](assets/homepage.png)
+
+### 📊 Resume Analysis Dashboard
+![Resume Analysis](assets/analysis1.png)
+
+### 🎯 ATS Recommendations
+![ATS Recommendations](assets/analysis5.png)
+
+### 📌 Resume Improvement Suggestions
+![Resume Suggestions](assets/suggestions1.png)
+
+### 🚀 Career Recommendations & Final Results
+![Final Results](assets/suggestions2.png)
+
 ### 📄 Resume Parsing
 
 * Upload Resume PDF
