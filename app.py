@@ -4,7 +4,7 @@ import streamlit as st
 from utils.pdf_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.section_analyzer import analyze_sections
-st.write("RUNNING LATEST APP.PY")
+from utils.resume_suggestions import generate_suggestions
 
 
 # -----------------------
@@ -96,7 +96,7 @@ st.write("")
 
 analyze = st.button(
     "🔍 Analyze Resume",
-    use_container_width=True
+    width="stretch"
 )
 
 # -----------------------
@@ -132,6 +132,11 @@ if analyze:
     # Matching Skills
     matching = set(resume_skills).intersection(set(job_skills))
     missing = set(job_skills) - set(resume_skills)
+    suggestions = generate_suggestions(
+    score=0,
+    missing_skills=missing,
+    section_scores=sections
+    )
 
     # Match Score
     if len(job_skills) > 0:
@@ -144,6 +149,12 @@ if analyze:
 
     # Resume Strength
     resume_strength = min(len(resume_skills) * 5, 100)
+    
+    suggestions = generate_suggestions(
+    score,
+    missing,
+    sections
+    )
 
     st.success("Resume Processed Successfully!")
 
@@ -250,8 +261,7 @@ if analyze:
     matched_count = len(matching)
     missing_count = len(missing)
 
-    st.write("DEBUG matched:", matched_count)
-    st.write("DEBUG missing:", missing_count)
+    
 
     if matched_count + missing_count == 0:
         st.warning("No skills available to generate chart.")
@@ -274,7 +284,7 @@ if analyze:
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
     # -----------------------
     # DOWNLOAD REPORT
@@ -313,6 +323,18 @@ Missing Skills:
             st.info(f"Add experience/projects in {skill.title()}.")
     else:
         st.success("Excellent! Your resume matches all required skills.")
+        
+       # -----------------------
+       # RESUME IMPROVEMENT SUGGESTIONS
+       # -----------------------
+
+    st.subheader("📌 Resume Improvement Suggestions")
+
+    if suggestions:
+        for suggestion in suggestions:
+            st.warning(suggestion)
+    else:
+        st.success("Your resume looks strong. No major improvements detected.")
 
     # -----------------------
     # CAREER RECOMMENDATIONS
