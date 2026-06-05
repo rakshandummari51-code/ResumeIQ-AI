@@ -1,4 +1,5 @@
 def extract_skills(text):
+    from utils.skill_aliases import normalize_skills
 
     skills_db = [
 
@@ -104,4 +105,4 @@ def extract_skills(text):
         if skill.lower() in text:
             found_skills.append(skill)
 
-    return sorted(list(set(found_skills)))
+    return normalize_skills(found_skills)
