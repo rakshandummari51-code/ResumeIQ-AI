@@ -1,11 +1,10 @@
-import plotly.express as px
-import pandas as pd
 import streamlit as st
 from utils.pdf_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.section_analyzer import analyze_sections
 from utils.resume_suggestions import generate_suggestions
 from utils.ats_scorer import calculate_ats_score
+from utils.job_role_predictor import predict_roles
 
 # -----------------------
 # PAGE CONFIG
@@ -16,8 +15,7 @@ st.set_page_config(
     page_icon="🚀",
     layout="wide"
 )
-if "analyzed" not in st.session_state:
-    st.session_state["analyzed"] = False
+
 # -----------------------
 # CUSTOM CSS
 # -----------------------
@@ -125,27 +123,25 @@ if analyze:
     # Extract Skills
     resume_skills = extract_skills(resume_text)
     job_skills = extract_skills(job_description)
-    
+
     resume_skills = resume_skills if resume_skills else []
     job_skills = job_skills if job_skills else []
+
+    # Predict Job Roles
+    role_predictions = predict_roles(resume_skills)
     
     # Matching Skills
     matching = set(resume_skills).intersection(set(job_skills))
     missing = set(job_skills) - set(resume_skills)
-    suggestions = generate_suggestions(
-    score=0,
-    missing_skills=missing,
-    section_scores=sections
-    )
 
     # Match Score
     if len(job_skills) > 0:
         score = int((len(matching) / len(job_skills)) * 100)
     else:
         score = 0
-
-    # ATS Score
+        # Resume Strength
     resume_strength = min(len(resume_skills) * 5, 100)
+    # ATS Score
     ats_score = calculate_ats_score(
     match_score=score,
     section_scores=sections,
@@ -159,8 +155,6 @@ if analyze:
 
     penalty = min(len(missing) * 2, 20)
     # Resume Strength
-    resume_strength = min(len(resume_skills) * 5, 100)
-    
     suggestions = generate_suggestions(
     score,
     missing,
@@ -359,9 +353,9 @@ Missing Skills:
     else:
         st.success("Excellent! Your resume matches all required skills.")
         
-       # -----------------------
-       # RESUME IMPROVEMENT SUGGESTIONS
-       # -----------------------
+    # -----------------------
+    # RESUME IMPROVEMENT SUGGESTIONS
+    # -----------------------
 
     st.subheader("📌 Resume Improvement Suggestions")
 
@@ -372,16 +366,14 @@ Missing Skills:
         st.success("Your resume looks strong. No major improvements detected.")
 
     # -----------------------
-    # CAREER RECOMMENDATIONS
+    # JOB ROLE PREDICTIONS
     # -----------------------
+    
 
-    st.subheader("📈 Career Recommendations")
+    st.subheader("🎯 Predicted Career Paths")
 
-    st.progress(min(score + 20, 100))
-    st.write(f"Data Analyst — {min(score + 20, 100)}%")
+    for role, role_score in list(role_predictions.items())[:5]:
 
-    st.progress(min(score + 10, 100))
-    st.write(f"Data Scientist — {min(score + 10, 100)}%")
+        st.write(f"**{role} — {role_score}%**")
 
-    st.progress(score)
-    st.write(f"ML Engineer — {score}%")
+        st.progress(role_score / 100)
