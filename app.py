@@ -5,6 +5,10 @@ from utils.section_analyzer import analyze_sections
 from utils.resume_suggestions import generate_suggestions
 from utils.ats_scorer import calculate_ats_score
 from utils.job_role_predictor import predict_roles
+from utils.skill_gap_analyzer import (
+    analyze_skill_gaps,
+    generate_learning_path
+)
 
 # -----------------------
 # PAGE CONFIG
@@ -131,8 +135,19 @@ if analyze:
     role_predictions = predict_roles(resume_skills)
     
     # Matching Skills
+    # Matching Skills
     matching = set(resume_skills).intersection(set(job_skills))
     missing = set(job_skills) - set(resume_skills)
+
+    # Skill Gap Analysis
+    skill_gap_results = analyze_skill_gaps(
+        missing
+    )
+
+    # Learning Path
+    learning_path = generate_learning_path(
+        skill_gap_results
+    )
 
     # Match Score
     if len(job_skills) > 0:
@@ -353,6 +368,32 @@ Missing Skills:
     else:
         st.success("Excellent! Your resume matches all required skills.")
         
+    st.subheader("🔥 Skill Gap Analysis")
+
+    if skill_gap_results:
+
+        for item in skill_gap_results:
+
+            st.write(
+            f"{item['skill']} — {item['priority']}"
+            )
+
+    else:
+        st.success(
+        "No major skill gaps detected."
+        )
+        
+    st.subheader("📚 Recommended Learning Path")
+
+    if learning_path:
+
+        for i, skill in enumerate(
+            learning_path[:5],
+            start=1
+        ):
+            st.write(
+                f"{i}. {skill}"
+            )    
     # -----------------------
     # RESUME IMPROVEMENT SUGGESTIONS
     # -----------------------
