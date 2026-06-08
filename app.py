@@ -9,7 +9,8 @@ from utils.skill_gap_analyzer import (
     analyze_skill_gaps,
     generate_learning_path
 )
-
+from utils.keyword_optimizer import optimize_keywords
+from utils.ai_recommendations import generate_ai_recommendations
 # -----------------------
 # PAGE CONFIG
 # -----------------------
@@ -130,6 +131,11 @@ if analyze:
 
     resume_skills = resume_skills if resume_skills else []
     job_skills = job_skills if job_skills else []
+    
+    keyword_suggestions = optimize_keywords(
+    resume_text.split()
+    )
+    
 
     # Predict Job Roles
     role_predictions = predict_roles(resume_skills)
@@ -138,6 +144,11 @@ if analyze:
     # Matching Skills
     matching = set(resume_skills).intersection(set(job_skills))
     missing = set(job_skills) - set(resume_skills)
+    
+    ai_recommendations = generate_ai_recommendations(
+    sections,
+    missing
+    )
 
     # Skill Gap Analysis
     skill_gap_results = analyze_skill_gaps(
@@ -405,6 +416,49 @@ Missing Skills:
             st.warning(suggestion)
     else:
         st.success("Your resume looks strong. No major improvements detected.")
+        
+        
+    # -----------------------
+    # AI RECOMMENDATIONS
+    # -----------------------
+
+    st.subheader("💡 AI Resume Recommendations")
+
+    if ai_recommendations:
+
+        for recommendation in ai_recommendations:
+
+            st.markdown(
+                f"### {recommendation['section']}"
+            )
+
+            for advice in recommendation["advice"]:
+
+                st.info(advice)
+
+    else:
+
+        st.success(
+            "No major recommendations detected."
+        )
+        
+    # -----------------------
+    # KEYWORD OPTIMIZER
+    # -----------------------
+
+    st.subheader("📝 Resume Keyword Optimizer")
+
+    if keyword_suggestions:
+
+        for item in keyword_suggestions:
+            st.info(
+                f"{item['current'].title()} → {item['suggested']}"
+            )
+
+    else:
+        st.success(
+            "No keyword optimization suggestions found."
+        )    
 
     # -----------------------
     # JOB ROLE PREDICTIONS
