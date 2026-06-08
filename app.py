@@ -16,6 +16,7 @@ from utils.career_roadmap import generate_career_roadmap
 from utils.resume_rewriter import generate_rewrite_suggestions
 from utils.pdf_report import generate_pdf_report
 
+
 def format_skill(skill):
 
     custom = {
@@ -299,6 +300,52 @@ if analyze:
         f"Final ATS Score: {ats_score}/100"
     )
 
+    # -----------------------
+    # RADAR CHART
+    # -----------------------
+
+    st.subheader("📊 Resume Performance Radar")
+
+    radar_categories = [
+        "Technical Skills",
+        "Projects",
+        "Experience",
+        "Education",
+        "ATS Compatibility"
+    ]
+
+    radar_values = [
+        resume_strength,
+        sections.get("Projects", 0),
+        sections.get("Experience", 0),
+        sections.get("Education", 0),
+        ats_score
+    ]
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatterpolar(
+        r=radar_values,
+        theta=radar_categories,
+        fill="toself",
+        name="Resume Performance"
+    ))
+
+    fig.update_layout(
+    polar=dict(
+        radialaxis=dict(
+            visible=True,
+            range=[0, 100]
+        )
+    ),
+    showlegend=False,
+    height=600
+    )
+
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
     # -----------------------
     # EXTRACTED TEXT
     # -----------------------
