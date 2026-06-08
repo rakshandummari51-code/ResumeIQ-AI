@@ -14,7 +14,9 @@ def generate_pdf_report(
     role_predictions,
     skill_gap_results,
     learning_path,
-    ai_recommendations
+    ai_recommendations,
+    career_roadmap,
+    rewrite_suggestions
 ):
 
     buffer = BytesIO()
@@ -43,7 +45,7 @@ def generate_pdf_report(
     story.append(Paragraph("Matching Skills", styles["Heading2"]))
     if matching_skills:
         for skill in matching_skills:
-            story.append(Paragraph(f"- {skill.title()}", styles["Normal"]))
+            story.append(Paragraph(f"- {str(skill).title()}", styles["Normal"]))
     else:
         story.append(Paragraph("No matching skills found.", styles["Normal"]))
 
@@ -52,15 +54,15 @@ def generate_pdf_report(
     story.append(Paragraph("Missing Skills", styles["Heading2"]))
     if missing_skills:
         for skill in missing_skills:
-            story.append(Paragraph(f"- {skill.title()}", styles["Normal"]))
+            story.append(Paragraph(f"- {str(skill).title()}", styles["Normal"]))
     else:
         story.append(Paragraph("No missing skills found.", styles["Normal"]))
 
     story.append(Spacer(1, 0.2 * inch))
 
     story.append(Paragraph("Predicted Career Paths", styles["Heading2"]))
-    for role, score in list(role_predictions.items())[:5]:
-        story.append(Paragraph(f"- {role}: {score}%", styles["Normal"]))
+    for role, role_score in list(role_predictions.items())[:5]:
+        story.append(Paragraph(f"- {role}: {role_score}%", styles["Normal"]))
 
     story.append(Spacer(1, 0.2 * inch))
 
@@ -90,17 +92,36 @@ def generate_pdf_report(
     story.append(Paragraph("AI Resume Recommendations", styles["Heading2"]))
     if ai_recommendations:
         for recommendation in ai_recommendations:
-            story.append(
-                Paragraph(
-                    recommendation["section"],
-                    styles["Heading3"]
-                )
-            )
+            story.append(Paragraph(recommendation["section"], styles["Heading3"]))
 
             for advice in recommendation["advice"]:
                 story.append(Paragraph(f"- {advice}", styles["Normal"]))
     else:
         story.append(Paragraph("No major recommendations detected.", styles["Normal"]))
+
+    story.append(Spacer(1, 0.2 * inch))
+
+    story.append(Paragraph("Career Roadmap", styles["Heading2"]))
+
+    story.append(Paragraph("Skills To Learn", styles["Heading3"]))
+    for skill in career_roadmap["skills"]:
+        story.append(Paragraph(f"- {skill}", styles["Normal"]))
+
+    story.append(Paragraph("Projects To Build", styles["Heading3"]))
+    for project in career_roadmap["projects"]:
+        story.append(Paragraph(f"- {project}", styles["Normal"]))
+
+    story.append(Spacer(1, 0.2 * inch))
+
+    story.append(Paragraph("Resume Rewrite Suggestions", styles["Heading2"]))
+
+    if rewrite_suggestions:
+        for item in rewrite_suggestions:
+            story.append(Paragraph(f"Weak: {item['weak']}", styles["Normal"]))
+            story.append(Paragraph(f"Better: {item['better']}", styles["Normal"]))
+            story.append(Spacer(1, 0.1 * inch))
+    else:
+        story.append(Paragraph("No rewrite suggestions found.", styles["Normal"]))
 
     doc.build(story)
 

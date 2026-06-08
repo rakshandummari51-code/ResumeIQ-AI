@@ -1,4 +1,5 @@
 import streamlit as st
+import plotly.graph_objects as go
 from utils.pdf_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.section_analyzer import analyze_sections
@@ -14,6 +15,23 @@ from utils.ai_recommendations import generate_ai_recommendations
 from utils.career_roadmap import generate_career_roadmap
 from utils.resume_rewriter import generate_rewrite_suggestions
 from utils.pdf_report import generate_pdf_report
+
+def format_skill(skill):
+
+    custom = {
+        "sql": "SQL",
+        "aws": "AWS",
+        "fastapi": "FastAPI",
+        "power bi": "Power BI",
+        "github": "GitHub",
+        "opencv": "OpenCV",
+        "yolov8": "YOLOv8"
+    }
+
+    return custom.get(
+        skill.lower(),
+        skill.title()
+    )
 
 # -----------------------
 # PAGE CONFIG
@@ -231,6 +249,32 @@ if analyze:
 
     st.write("")
     
+    st.subheader("🎯 ATS Score Gauge")
+
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=ats_score,
+        title={"text": "ATS Score"},
+        gauge={
+            "axis": {"range": [0, 100]},
+            "bar": {"color": "green"},
+            "steps": [
+                {"range": [0, 40], "color": "#ffcccc"},
+                {"range": [40, 70], "color": "#fff4cc"},
+                {"range": [70, 100], "color": "#ccffcc"}
+            ]
+        }
+    ))
+
+    fig.update_layout(
+    height=350
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+    
     
     st.subheader("📈 ATS Score Breakdown")
 
@@ -277,17 +321,52 @@ if analyze:
 
     with left:
         st.subheader("Resume Skills")
+
         if resume_skills:
+
+            skills_html = ""
+
             for skill in resume_skills:
-                st.success(skill.title())
+                skills_html += f"""
+                <span style="
+                    background:#1f2937;
+                    color:white;
+                    padding:8px 12px;
+                    border-radius:15px;
+                    margin:4px;
+                    display:inline-block;
+                ">
+                {format_skill(skill)}
+                </span>
+                """
+
+            st.markdown(skills_html, unsafe_allow_html=True)
+
         else:
             st.warning("No skills detected.")
-
     with right:
         st.subheader("Job Skills")
+
         if job_skills:
+
+            skills_html = ""
+
             for skill in job_skills:
-                st.info(skill.title())
+                skills_html += f"""
+                <span style="
+                    background:#1f2937;
+                    color:white;
+                    padding:8px 12px;
+                    border-radius:15px;
+                    margin:4px;
+                    display:inline-block;
+                ">
+                {format_skill(skill)}
+                </span>
+                """
+
+            st.markdown(skills_html, unsafe_allow_html=True)
+
         else:
             st.warning("No job skills detected.")
 
@@ -301,12 +380,29 @@ if analyze:
 
     with left:
         st.subheader("Matching Skills")
+
         if matching:
+
+            skills_html = ""
+
             for skill in matching:
-                st.success(skill.title())
+                skills_html += f"""
+                <span style="
+                    background:#1f2937;
+                    color:white;
+                    padding:8px 12px;
+                    border-radius:15px;
+                    margin:4px;
+                    display:inline-block;
+                ">
+                {format_skill(skill)}
+                </span>
+                """
+
+            st.markdown(skills_html, unsafe_allow_html=True)
+
         else:
             st.warning("No matching skills found.")
-
     with right:
         st.subheader("Missing Skills")
         if missing:
@@ -356,15 +452,17 @@ if analyze:
     # -----------------------
 
     pdf_report = generate_pdf_report(
-        match_score=score,
-        ats_score=ats_score,
-        resume_strength=resume_strength,
-        matching_skills=matching,
-        missing_skills=missing,
-        role_predictions=role_predictions,
-        skill_gap_results=skill_gap_results,
-        learning_path=learning_path,
-        ai_recommendations=ai_recommendations
+    match_score=score,
+    ats_score=ats_score,
+    resume_strength=resume_strength,
+    matching_skills=matching,
+    missing_skills=missing,
+    role_predictions=role_predictions,
+    skill_gap_results=skill_gap_results,
+    learning_path=learning_path,
+    ai_recommendations=ai_recommendations,
+    career_roadmap=career_roadmap,
+    rewrite_suggestions=rewrite_suggestions
     )
 
     st.download_button(
@@ -494,10 +592,27 @@ if analyze:
 
     for role, role_score in list(role_predictions.items())[:5]:
 
-        st.write(f"**{role} — {role_score}%**")
+        st.markdown(
+            f"""
+            <div style="
+                background:#1f2937;
+                padding:15px;
+                border-radius:12px;
+                margin-bottom:12px;
+                border-left:5px solid #22c55e;
+            ">
+                <h4 style="margin:0;">
+                    {role}
+                </h4>
+                <p style="margin:5px 0 0 0;">
+                    Match Score: <b>{role_score}%</b>
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         st.progress(role_score / 100)
-        
     # -----------------------
     # CAREER ROADMAP
     # -----------------------
