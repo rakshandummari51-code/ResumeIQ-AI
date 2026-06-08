@@ -11,6 +11,7 @@ from utils.skill_gap_analyzer import (
 )
 from utils.keyword_optimizer import optimize_keywords
 from utils.ai_recommendations import generate_ai_recommendations
+from utils.career_roadmap import generate_career_roadmap
 # -----------------------
 # PAGE CONFIG
 # -----------------------
@@ -139,6 +140,10 @@ if analyze:
 
     # Predict Job Roles
     role_predictions = predict_roles(resume_skills)
+    
+    top_role = list(role_predictions.keys())[0]
+
+    career_roadmap = generate_career_roadmap(top_role)
     
     # Matching Skills
     # Matching Skills
@@ -472,3 +477,20 @@ Missing Skills:
         st.write(f"**{role} — {role_score}%**")
 
         st.progress(role_score / 100)
+        
+    # -----------------------
+    # CAREER ROADMAP
+    # -----------------------
+
+    st.subheader(f"🧭 Career Roadmap for {top_role}")
+
+    st.markdown("### Skills To Learn")
+
+    for skill in career_roadmap["skills"]:
+        st.info(skill)
+
+    st.markdown("### Projects To Build")
+
+    for project in career_roadmap["projects"]:
+        st.success(project)
+        
