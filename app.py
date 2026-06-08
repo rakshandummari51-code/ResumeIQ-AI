@@ -12,6 +12,9 @@ from utils.skill_gap_analyzer import (
 from utils.keyword_optimizer import optimize_keywords
 from utils.ai_recommendations import generate_ai_recommendations
 from utils.career_roadmap import generate_career_roadmap
+from utils.resume_rewriter import generate_rewrite_suggestions
+from utils.pdf_report import generate_pdf_report
+
 # -----------------------
 # PAGE CONFIG
 # -----------------------
@@ -115,6 +118,8 @@ if analyze:
 
     # Extract Resume Text
     resume_text = extract_text_from_pdf(uploaded_file)
+    
+    rewrite_suggestions = generate_rewrite_suggestions(resume_text)
 
     sections = analyze_sections(resume_text)
 
@@ -350,26 +355,23 @@ if analyze:
     # DOWNLOAD REPORT
     # -----------------------
 
-    report = f"""
-ResumeIQ AI Report
-==============================
-
-Match Score: {score}%
-ATS Score: {ats_score}%
-Resume Strength: {resume_strength}%
-
-Matching Skills:
-{chr(10).join(matching)}
-
-Missing Skills:
-{chr(10).join(missing)}
-"""
+    pdf_report = generate_pdf_report(
+        match_score=score,
+        ats_score=ats_score,
+        resume_strength=resume_strength,
+        matching_skills=matching,
+        missing_skills=missing,
+        role_predictions=role_predictions,
+        skill_gap_results=skill_gap_results,
+        learning_path=learning_path,
+        ai_recommendations=ai_recommendations
+    )
 
     st.download_button(
-        label="📄 Download Report",
-        data=report,
-        file_name="ResumeIQ_Report.txt",
-        mime="text/plain"
+        label="📄 Download Professional PDF Report",
+        data=pdf_report,
+        file_name="ResumeIQ_Report.pdf",
+        mime="application/pdf"
     )
 
     # -----------------------
@@ -465,6 +467,24 @@ Missing Skills:
             "No keyword optimization suggestions found."
         )    
 
+    # -----------------------
+    # RESUME REWRITE SUGGESTIONS
+    # -----------------------
+
+    st.subheader("✍️ Resume Rewrite Suggestions")
+
+    if rewrite_suggestions:
+
+        for suggestion in rewrite_suggestions:
+
+            st.warning(f"Weak: {suggestion['weak']}")
+
+            st.success(f"Better: {suggestion['better']}")
+
+    else:
+        st.success("No rewrite suggestions found.")
+        
+        
     # -----------------------
     # JOB ROLE PREDICTIONS
     # -----------------------
