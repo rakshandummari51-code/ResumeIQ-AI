@@ -15,6 +15,10 @@ from utils.ai_recommendations import generate_ai_recommendations
 from utils.career_roadmap import generate_career_roadmap
 from utils.resume_rewriter import generate_rewrite_suggestions
 from utils.pdf_report import generate_pdf_report
+from utils_v2.certification_analyzer import analyze_certifications
+from utils_v2.certification_extractor import extract_certifications
+from utils_v2.project_extractor import extract_projects_v2
+from utils_v2.project_analyzer import analyze_projects
 
 
 def format_skill(skill):
@@ -137,6 +141,22 @@ if analyze:
 
     # Extract Resume Text
     resume_text = extract_text_from_pdf(uploaded_file)
+    
+    extracted_projects_v2 = extract_projects_v2(
+        resume_text
+    )
+    project_analysis = analyze_projects(
+        extracted_projects_v2
+    )
+
+    
+    extracted_certifications = extract_certifications(
+        resume_text
+    )
+
+    certification_analysis = analyze_certifications(
+        extracted_certifications
+    )
     
     rewrite_suggestions = generate_rewrite_suggestions(resume_text)
 
@@ -273,7 +293,7 @@ if analyze:
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        width="stretch"
     )
     
     
@@ -418,7 +438,62 @@ if analyze:
             st.warning("No job skills detected.")
 
     st.write("")
+    
+    st.subheader("🎓 Certification Intelligence")
 
+    if certification_analysis:
+
+        for cert in certification_analysis:
+
+            clean_name = cert["name"].replace("", "").strip()
+
+            st.markdown(f"### 📜 {clean_name}")
+
+            st.write(
+                f"**Category:** {cert['category']}"
+            )
+
+            st.write(
+            f"**Impact:** {cert['impact']}"
+            ) 
+
+            st.write(
+            f"**Score:** {cert['score']}/10"
+            )
+
+            st.write(
+            f"**Career Roles:** "
+            f"{', '.join(cert['career_roles'])}"
+            )
+
+            st.divider()
+
+    else:
+        st.warning(
+            "No certifications detected."
+        )
+
+    st.subheader("🚀 Project Intelligence")
+
+    if project_analysis:
+
+        for project in project_analysis:
+
+            st.markdown(f"### 📂 {project['name']}")
+
+            st.write(f"Type: {project['type']}")
+            st.write(f"Complexity: {project['complexity']}")
+            st.write(f"Impact Score: {project['impact_score']}/10")
+
+            st.write(
+                f"Relevant Roles: "
+                f"{', '.join(project['career_roles'])}"
+            )
+
+            st.divider()
+
+    else:
+        st.warning("No projects detected.")
     # -----------------------
     # MATCHING & MISSING
     # -----------------------
