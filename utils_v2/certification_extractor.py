@@ -25,7 +25,11 @@ def extract_certifications(text):
         "achievements",
         "career objective",
         "professional summary",
-        "summary"
+        "summary",
+        "hobbies",
+        "interests",
+        "personal interests",
+        "languages"
     ]
 
     inside_certifications = False
