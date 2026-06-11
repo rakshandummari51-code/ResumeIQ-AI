@@ -72,6 +72,49 @@ ResumeIQ AI is an AI-powered Resume Analyzer that compares a candidate's resume 
 * Download Analysis Report
 * Resume Summary Export
 
+### 🚀 ATS Engine V2
+
+* Multi-Factor ATS Scoring
+* ATS Score Breakdown
+* Skills, Projects, Experience, Education & Certification Scoring
+
+### 🏅 Resume Ranking
+
+* Beginner
+* Developing Candidate
+* Strong Candidate
+* Interview Ready
+
+### 🧑‍💼 Recruiter Summary
+
+* AI-Generated Recruiter Insights
+* Candidate Strength Analysis
+* Job Readiness Evaluation
+
+### 🎓 Certification Intelligence
+
+* Certification Detection
+* Certification Categorization
+* Career Role Mapping
+
+### 🚀 Project Intelligence
+
+* Project Detection
+* Project Complexity Analysis
+* Impact Score Evaluation
+
+### 💼 Experience Intelligence
+
+* Internship Detection
+* Experience Classification
+* Industry Relevance Analysis
+
+### 🎓 Education Intelligence
+
+* Degree Detection
+* Domain Alignment Analysis
+* Career Role Recommendations
+
 ---
 
 ## 🛠️ Tech Stack
@@ -108,7 +151,18 @@ ResumeIQ-AI/
 │   ├── pdf_parser.py
 │   ├── skill_extractor.py
 │   ├── section_analyzer.py
+│   ├── role_predictor.py
 │   └── resume_suggestions.py
+│
+├── utils_v2/
+│   ├── ats_engine_v2.py
+│   ├── certification_extractor.py
+│   ├── education_extractor.py
+│   ├── education_analyzer.py
+│   ├── experience_extractor.py
+│   ├── experience_analyzer.py
+│   ├── recruiter_summary.py
+│   └── resume_ranker.py
 │
 ├── requirements.txt
 ├── README.md
@@ -181,12 +235,13 @@ python -m streamlit run app.py
 
 ### Upcoming Features 🚀
 
-* Advanced ATS Scoring
-* NLP-Based Skill Extraction
-* Resume Keyword Optimization
-* Job Recommendation Engine
-* AI Resume Enhancement Suggestions
+### Phase 3 (Planned) 🌍
 
+* Domain Detection Engine
+* Universal Career Intelligence Platform
+* Dynamic Career Roadmaps
+* Industry-Specific ATS Scoring
+* Support for Engineering, Medicine, Business, Law, Commerce and More
 ---
 
 ## 👨‍💻 Author
