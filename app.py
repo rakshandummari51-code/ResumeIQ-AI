@@ -25,6 +25,7 @@ from utils_v2.education_analyzer import analyze_education
 from utils_v2.ats_engine_v2 import calculate_ats_score_v2
 from utils_v2.recruiter_summary import generate_recruiter_summary
 from utils_v2.resume_ranker import get_resume_rank
+from utils_v3.domain_detector import detect_domain
 
 
 
@@ -148,6 +149,13 @@ if analyze:
 
     # Extract Resume Text
     resume_text = extract_text_from_pdf(uploaded_file)
+    
+    domain_result = detect_domain(
+    resume_text
+    )
+
+    detected_domain = domain_result["domain"]
+    domain_confidence = domain_result["confidence"]
     
     extracted_projects_v2 = extract_projects_v2(
         resume_text
@@ -280,6 +288,7 @@ if analyze:
     )
 
     st.success("Resume Processed Successfully!")
+    
 
     # -----------------------
     # METRICS
@@ -503,6 +512,9 @@ if analyze:
             st.warning("No job skills detected.")
 
     st.write("")
+    
+    
+    
     
     st.subheader("🎓 Certification Intelligence")
 
@@ -786,24 +798,7 @@ if analyze:
         st.success(
             "No major recommendations detected."
         )
-        
-    # -----------------------
-    # KEYWORD OPTIMIZER
-    # -----------------------
-
-    st.subheader("📝 Resume Keyword Optimizer")
-
-    if keyword_suggestions:
-
-        for item in keyword_suggestions:
-            st.info(
-                f"{item['current'].title()} → {item['suggested']}"
-            )
-
-    else:
-        st.success(
-            "No keyword optimization suggestions found."
-        )    
+         
 
     # -----------------------
     # RESUME REWRITE SUGGESTIONS
