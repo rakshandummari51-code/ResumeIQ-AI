@@ -4,7 +4,6 @@ from utils.pdf_parser import extract_text_from_pdf
 from utils.skill_extractor import extract_skills
 from utils.section_analyzer import analyze_sections
 from utils.resume_suggestions import generate_suggestions
-from utils.ats_scorer import calculate_ats_score
 from utils.job_role_predictor import predict_roles
 from utils.skill_gap_analyzer import (
     analyze_skill_gaps,
@@ -19,6 +18,14 @@ from utils_v2.certification_analyzer import analyze_certifications
 from utils_v2.certification_extractor import extract_certifications
 from utils_v2.project_extractor import extract_projects_v2
 from utils_v2.project_analyzer import analyze_projects
+from utils_v2.experience_extractor import extract_experience
+from utils_v2.experience_analyzer import analyze_experience
+from utils_v2.education_extractor import extract_education
+from utils_v2.education_analyzer import analyze_education
+from utils_v2.ats_engine_v2 import calculate_ats_score_v2
+from utils_v2.recruiter_summary import generate_recruiter_summary
+from utils_v2.resume_ranker import get_resume_rank
+
 
 
 def format_skill(skill):
@@ -148,7 +155,22 @@ if analyze:
     project_analysis = analyze_projects(
         extracted_projects_v2
     )
+    
+    extracted_experience = extract_experience(
+        resume_text
+    )
 
+    experience_analysis = analyze_experience(
+        extracted_experience
+    )
+    
+    extracted_education = extract_education(
+        resume_text
+    )
+
+    education_analysis = analyze_education(
+        extracted_education
+    )
     
     extracted_certifications = extract_certifications(
         resume_text
@@ -184,7 +206,7 @@ if analyze:
 
     # Predict Job Roles
     role_predictions = predict_roles(resume_skills)
-    
+   
     top_role = list(role_predictions.keys())[0]
 
     career_roadmap = generate_career_roadmap(top_role)
@@ -217,23 +239,44 @@ if analyze:
         # Resume Strength
     resume_strength = min(len(resume_skills) * 5, 100)
     # ATS Score
-    ats_score = calculate_ats_score(
-    match_score=score,
-    section_scores=sections,
-    resume_strength=resume_strength,
-    missing_skills=missing
+    ats_score_v2, ats_breakdown = calculate_ats_score_v2(
+        match_score=score,
+        project_analysis=project_analysis,
+        experience_analysis=experience_analysis,
+        certification_analysis=certification_analysis,
+        education_analysis=education_analysis,
+        section_scores=sections,
+        missing_skills=missing
     )
+    
+    rank_title, rank_description = get_resume_rank(
+    ats_score_v2
+    )
+    
+    candidate_name = "This candidate"
+
+    recruiter_summary = generate_recruiter_summary(
+        name=candidate_name,
+        top_role=top_role,
+        resume_skills=resume_skills,
+        project_analysis=project_analysis,
+        experience_analysis=experience_analysis,
+        certification_analysis=certification_analysis,
+        education_analysis=education_analysis,
+        ats_score_v2=ats_score_v2
+    )
+
     section_average = (
-    sum(sections.values())
-    / len(sections)
+        sum(sections.values())
+        / len(sections)
     )
 
     penalty = min(len(missing) * 2, 20)
     # Resume Strength
     suggestions = generate_suggestions(
-    score,
-    missing,
-    sections
+        score,
+        missing,
+        sections
     )
 
     st.success("Resume Processed Successfully!")
@@ -256,7 +299,7 @@ if analyze:
         st.markdown(f"""
         <div class="metric-card">
             <h3>ATS Score</h3>
-            <div class="big-score">{ats_score}%</div>
+            <div class="big-score">{ats_score_v2}%</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -274,7 +317,7 @@ if analyze:
 
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=ats_score,
+        value=ats_score_v2,
         title={"text": "ATS Score"},
         gauge={
             "axis": {"range": [0, 100]},
@@ -317,9 +360,31 @@ if analyze:
     )
 
     st.success(
-        f"Final ATS Score: {ats_score}/100"
+        f"Final ATS Score: {ats_score_v2}/100"
     )
 
+
+    st.subheader("🚀 ATS Engine V2")
+
+    for category, value in ats_breakdown.items():
+        st.write(f"{category}: {value}")
+
+    st.success(
+        f"Final ATS Score V2: {ats_score_v2}/100"
+    )
+    
+    st.subheader("🏅 Resume Ranking")
+
+    st.markdown(
+        f"## {rank_title}"
+    )
+
+    st.info(rank_description)
+    
+    st.subheader("🧑‍💼 Recruiter Summary")
+
+    st.info(recruiter_summary)
+    
     # -----------------------
     # RADAR CHART
     # -----------------------
@@ -339,7 +404,7 @@ if analyze:
         sections.get("Projects", 0),
         sections.get("Experience", 0),
         sections.get("Education", 0),
-        ats_score
+        ats_score_v2
     ]
 
     fig = go.Figure()
@@ -494,6 +559,59 @@ if analyze:
 
     else:
         st.warning("No projects detected.")
+        
+        
+    st.subheader("💼 Experience Intelligence")
+
+    if experience_analysis:
+
+        for exp in experience_analysis:
+
+            st.markdown(f"### 🧑‍💼 {exp['name']}")
+
+            st.write(f"Type: {exp['type']}")
+            st.write(f"Impact: {exp['impact']}")
+            st.write(f"Score: {exp['score']}/10")
+
+            st.write(
+                f"Relevant Roles: "
+                f"{', '.join(exp['career_roles'])}"
+            )
+
+            st.divider()
+
+    else:
+        st.warning("No internship or experience detected.")
+        
+    st.subheader("🎓 Education Intelligence")
+
+    if education_analysis:
+
+        for edu in education_analysis:
+
+            st.markdown(f"### 🎓 {edu['name']}")
+
+            st.write(
+                f"Domain Alignment: "
+                f"{edu['domain_alignment']}"
+            )
+
+            st.write(
+                f"Industry Relevance: "
+                f"{edu['industry_relevance']}"
+            )
+
+            st.write(
+                f"Relevant Roles: "
+                f"{', '.join(edu['career_roles'])}"
+            )
+
+            st.divider()
+
+    else:
+        st.warning(
+            "No education details detected."
+        )
     # -----------------------
     # MATCHING & MISSING
     # -----------------------
@@ -575,7 +693,7 @@ if analyze:
 
     pdf_report = generate_pdf_report(
     match_score=score,
-    ats_score=ats_score,
+    ats_score=ats_score_v2,
     resume_strength=resume_strength,
     matching_skills=matching,
     missing_skills=missing,

@@ -3,29 +3,24 @@ def predict_roles(skills):
     role_database = {
         "AI Engineer": [
             "python",
-            "artificial intelligence",
             "machine learning",
-            "deep learning",
+            "artificial intelligence",
             "computer vision",
+            "opencv",
+            "yolov8",
             "object detection",
             "fastapi"
         ],
 
-        "Machine Learning Engineer": [
+        "Data Scientist": [
             "python",
-            "machine learning",
-            "deep learning",
-            "computer vision",
-            "object detection",
-            "scikit-learn"
-        ],
-
-        "Backend Developer": [
-            "python",
-            "java",
             "sql",
-            "fastapi",
-            "git"
+            "machine learning",
+            "data analysis",
+            "data visualization",
+            "statistics",
+            "pandas",
+            "numpy"
         ],
 
         "Data Analyst": [
@@ -37,24 +32,53 @@ def predict_roles(skills):
             "power bi"
         ],
 
-        "Data Scientist": [
+        "Machine Learning Engineer": [
             "python",
-            "sql",
             "machine learning",
-            "data analysis",
-            "pandas",
-            "numpy",
-            "statistics"
+            "computer vision",
+            "opencv",
+            "yolov8",
+            "scikit-learn",
+            "deep learning"
+        ],
+
+        "Backend Developer": [
+            "python",
+            "java",
+            "sql",
+            "fastapi",
+            "git"
         ]
     }
 
-    predictions = {}
-
     skills = set(skill.lower() for skill in skills)
 
+    predictions = {}
+
     for role, required_skills in role_database.items():
-        matched = len(skills.intersection(set(required_skills)))
-        score = int((matched / len(required_skills)) * 100)
+
+        matched = len(
+            skills.intersection(set(required_skills))
+        )
+
+        base_score = int(
+            (matched / len(required_skills)) * 100
+        )
+ 
+        role_weights = {
+            "AI Engineer": 1.20,
+            "Data Scientist": 1.15,
+            "Data Analyst": 1.05,
+            "Machine Learning Engineer": 1.10,
+            "Backend Developer": 0.80
+        }
+
+        score = int(
+            base_score * role_weights.get(role, 1)
+        )
+
+        score = min(score, 100)
+
         predictions[role] = score
 
     return dict(

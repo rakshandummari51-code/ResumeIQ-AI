@@ -3,8 +3,6 @@ def extract_certifications(text):
     lines = text.split("\n")
     certifications = []
 
-    inside_certifications = False
-
     certification_headings = [
         "certifications",
         "certificates",
@@ -30,11 +28,14 @@ def extract_certifications(text):
         "summary"
     ]
 
+    inside_certifications = False
+
     for line in lines:
 
         clean_line = (
             line.replace("", "")
                 .replace("", "")
+                .replace("•", "")
                 .strip()
         )
 
@@ -43,23 +44,17 @@ def extract_certifications(text):
 
         line_lower = clean_line.lower()
 
-        # Start Certification Section
-        if any(
-            heading in line_lower
-            for heading in certification_headings
-        ):
+        if line_lower in certification_headings:
             inside_certifications = True
             continue
 
-        # Read Certifications
         if inside_certifications:
 
-            # Stop when next section starts
-            if any(
-                section in line_lower
-                for section in stop_sections
-            ):
+            if line_lower in stop_sections:
                 break
+
+            if clean_line.endswith("."):
+                continue
 
             certifications.append(clean_line)
 

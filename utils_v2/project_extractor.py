@@ -39,7 +39,6 @@ def extract_projects_v2(text):
 
         line_lower = clean_line.lower()
         
-        print("PROJECT LINE:", clean_line)
 
         # Start project section
         if any(
